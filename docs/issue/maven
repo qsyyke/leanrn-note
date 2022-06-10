@@ -1,0 +1,94 @@
+# 不会下载jar包
+
+如果出现这种情况的话，idea的pom.xml文件会出现爆红，但是又不会自动进行下载，出现这种情况的原因是由于，由于之前下载jar包失败，会在本地仓库中产生许多的`.last..`结尾的文件，所以就不会再继续进行下载，我们只需要将这些文件删除，就可以了
+
+
+
+
+
+# 明明导入依赖，提示找不到包
+
+![image-20210424090846210](https://picture.xcye.xyz/image-20210424090846210.png)
+
+将这个打钩就可以
+
+也可以移除这个module，然后在重新导入
+
+
+
+
+
+# 打包失败，设置镜像
+
+打包报错信息
+
+```java
+Could not transfer artifact org.apache.maven.shared:maven-artifact-transfer:pom:0.9.0 from/to centra
+```
+
+通过设置镜像就可以解决
+
+在maven安装目录的conf中`setting.xml`，添加以下，使用阿里云的镜像
+
+```xml
+<mirrors>
+    <!--配置阿里云maven私有仓库（即配阿里私服）-->
+    <mirror>
+        <id>alimaven</id>
+        <mirrorOf>*</mirrorOf>
+        <url>https://maven.aliyun.com/repository/central</url>
+    </mirror>
+</mirrors>
+```
+
+
+
+## 使用阿里云镜像，出现Could not transfer artifact org.springframework.boot:spring-boot-starter-parent:pom:xx“解决
+
+![image-20220308174754563](https://ooszy.cco.vin/img/blog-note/image-20220308174754563.png)
+
+```
+-Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true
+```
+
+> 这一步的作用就是，忽略SSL的检查
+
+
+
+做完上一步之后，因为本地还有缓存，所以你需要清理掉缓存，也就是删除之前下载的文件
+
+
+
+
+
+
+
+## 微服务项目构建
+
+如果我们需要构建的是一个微服务模块，有一个祖`module`，
+
+![image-20220310182314302](https://picture.xcye.xyz/image-20220310182314302.png)
+
+比如我们现在存在如图所示这个模块，其中`spring-security-services`是
+
+> `common,infrastructure,service`的父模块，是`service-base,gateway`的祖宗模块
+
+
+
+在构建的一个maven微服务结构的时候，我们一定要做到以下几个点
+
+1. 父模块，不需要有src目录，只需要有`pom.xml`,`xxxx.iml`文件便可以了
+
+2. 子模块一定要在`pom.xml`中写上`<parent></parent>`的`gav`坐标，否则会报错
+
+3. 父模块，一定要在`pom.xml`文件上，写上该模块下，有哪些子模块
+
+   > ```xml
+   > <modules>
+   >   <module>子xxxx</module>
+   >   <module>子xxxx</module>
+   > </modules>
+   > ```
+
+4. 父模块的`<packaging></packaging>`不能是`jar`形式，一定要是`pom`，否则会报错
+
