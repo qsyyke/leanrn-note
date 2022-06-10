@@ -4,6 +4,7 @@
   "description": "aurora blog",
   "main": "index.js",
   "scripts": {
+    "deploy": "bash deploy.sh",
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "vuepress dev docs",
     "build": "vuepress build docs"
